@@ -1,0 +1,170 @@
+# NÍVEL BÁSICO — O DESPERTAR DO HERÓI
+
+class Personagem:
+    def __init__(self, nome, vida, forca, precisao=0, poder_magico=0):
+        self.nome = nome
+        self.vida = vida
+        self.forca = forca
+        self.precisao = precisao
+       	self.poder_magico = poder_magico
+        self.arma = None
+
+    def status(self):
+        print(f" {self.nome} ")
+        print(f"Vida: {self.vida}")
+        print(f"Força: {self.forca}")
+        print(f"Precisão: {self.precisao}")
+        print(f"Poder Mágico: {self.poder_magico}")
+        if self.arma:
+            print(f"Arma equipada: {self.arma.nome} (Atk {self.arma.dano})")
+        else:
+            print("Sem arma equipada.")
+    def atacar(self, alvo):
+        dano = self.forca
+        if self.arma:
+            dano += self.arma.dano
+        print(f"{self.nome} atacou {alvo.nome} causando {dano} de dano!")
+        alvo.receber_dano(dano)
+
+    def receber_dano(self, qtd):
+        self.vida -= qtd
+        if self.vida < 0:
+            self.vida = 0
+
+class Guerreiro(Personagem):
+    pass
+
+class Mago(Personagem):
+    pass
+
+class Arqueiro(Personagem):
+    pass
+
+
+class Monstro:
+    def __init__(self, nome, vida=30, forca=5):
+        self.nome = nome
+        self.vida = vida
+        self.forca = forca
+
+    def atacar(self, alvo):
+        print(f"{self.nome} atacou {alvo.nome} causando {self.forca} de dano!")
+        alvo.receber_dano(self.forca)
+
+    def receber_dano(self, qtd):
+        self.vida -= qtd
+        if self.vida < 0:
+            self.vida = 0
+
+
+class Arma:
+    def __init__(self, nome, dano):
+        self.nome = nome
+        self.dano = dano
+
+class Pocao:
+    def __init__(self, nome, cura):
+        self.nome = nome
+        self.cura = cura
+
+
+
+# NÍVEL INTERMEDIÁRIO — A FORJA DAS LENDAS
+
+class Inventario:
+    def __init__(self):
+        self.itens = []
+
+    def adicionar(self, item):
+        self.itens.append(item)
+
+    def mostrar(self):
+        print("Inventário:")
+        for i in self.itens:
+            print("-", i.nome)
+
+
+class PersonagemAvancado(Personagem):
+    def __init__(self, nome, vida, forca, precisao=0, poder_magico=0):
+        super().__init__(nome, vida, forca, precisao, poder_magico)
+        self.inventario = Inventario()
+
+    def usar_pocao(self, pocao):
+        if pocao in self.inventario.itens:
+            print(f"{self.nome} usou {pocao.nome} e recuperou {pocao.cura} de vida!")
+            self.vida += pocao.cura
+            if self.vida > 100:
+                self.vida = 100
+            self.inventario.itens.remove(pocao)
+
+
+def fabrica_goblin():
+    return Monstro("Goblin", vida=25, forca=6)
+
+
+
+# NÍVEL AVANÇADO — O PANTEÃO DOS CAMPEÕES
+
+class Habilidade:
+    def usar(self, usuario, alvo):
+        raise NotImplementedError("Habilidade deve implementar o método usar()")
+
+
+class AtaqueForte(Habilidade):
+    def usar(self, usuario, alvo):
+        dano = usuario.forca * 2
+        print(f"{usuario.nome} usou ATAQUE FORTE causando {dano}!")
+        alvo.receber_dano(dano)
+
+
+class BolaDeFogo(Habilidade):
+    def usar(self, usuario, alvo):
+        dano = usuario.poder_magico * 2
+        print(f"{usuario.nome} lançou BOLA DE FOGO causando {dano}!")
+        alvo.receber_dano(dano)
+
+
+class Batalha:
+    def __init__(self, lutador1, lutador2):
+        self.l1 = lutador1
+        self.l2 = lutador2
+
+    def iniciar(self):
+        print("\nINÍCIO DA BATALHA")
+        turno = 1
+        while self.l1.vida > 0 and self.l2.vida > 0:
+            print(f"\nTURNO {turno}")
+            self.l1.atacar(self.l2)
+            if self.l2.vida <= 0:
+                break
+
+            self.l2.atacar(self.l1)
+            turno += 1
+
+        print("\nFIM DA BATALHA")
+        if self.l1.vida > 0:
+            print(f"Vencedor: {self.l1.nome}")
+        else:
+            print(f"Vencedor: {self.l2.nome}")
+
+if __name__ == "__main__":
+    g = Guerreiro("Arthur", vida=60, forca=10)
+    m = Mago("Merlin", vida=50, forca=5, poder_magico=12)
+    a = Arqueiro("Robin", vida=55, forca=7, precisao=10)
+
+    espada = Arma("Espada Longa", 5)
+    g.arma = espada
+
+    g.status()
+    m.status()
+    a.status()
+
+    goblin = fabrica_goblin()
+
+    print("\nTeste de ataque:")
+    g.atacar(goblin)
+    print(f"Vida do Goblin: {goblin.vida}")
+
+    print("\nIniciando batalha entre Arthur e o Goblin...")
+    b = Batalha(g, goblin)
+    b.iniciar()
